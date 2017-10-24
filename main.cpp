@@ -7,6 +7,8 @@
 #include <iostream>
 #include <ctime>
 #include <string>
+#include <vector>
+#include "card.h"
 
 using namespace std;
 
@@ -17,20 +19,72 @@ int dealCards(int, string);
 void hit(int &);
 void determineWinner(int, int);
 int Random(int, int);
-
+void printCard(card);
+void playBlackJack(void);
+vector<card> buildDeck(void);
+string determineSuit(int);
+card dealNextCard (vector<card>);
 
 int main() {
     char keepPlaying = 'n'; //loop control variable
 
     do {
-        play21();
+        playBlackJack();
 
         //ask if want to keep playing?
-        cout << "Do you want to play anouther hand (y/n)?";
+        cout << "Do you want to play another hand (y/n)?";
         cin >> keepPlaying;
     } while(keepPlaying == 'Y' || keepPlaying == 'y');
 }
 
+void playBlackJack(void) {
+    buildDeck();
+
+}
+
+card dealNextCard (vector<card> & deck) {
+
+}
+
+vector<card> buildDeck() {
+    // Create Vector
+    vector<card> deck;
+    // Add 52 cards
+    card aceOfSpades;
+    aceOfSpades.rank = 11;
+    aceOfSpades.suit = "Spade";
+    deck.push_back(aceOfSpades);
+
+    for (int x=0; x<4; ++x) {
+        for (int y=1; y<14; ++y) {
+            card newCard;
+            newCard.suit = determineSuit(x);
+            newCard.rank = y;
+            deck.push_back(newCard);
+        }
+    }
+
+    printCard(aceOfSpades);
+
+    // Shuffle the deck
+
+}
+
+string determineSuit(int suitNum) {
+    if (suitNum == 0) {
+        return "Hearts";
+    } else if (suitNum == 1) {
+        return "Diamonds";
+    } else if (suitNum ==2) {
+        return "Spades";
+    } else {
+        return "Clubs";
+    }
+}
+
+void printCard(card c) {
+    cout << c.suit << " " << c.rank << endl;
+}
 
 void play21(void) {
     //play one hand of 21

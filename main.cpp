@@ -16,39 +16,111 @@ using namespace std;
 //prototypes...
 void play21(void);
 
-int dealCards(int, string);
-void hit(int &);
 void determineWinner(int, int);
 int getRandomNumber(int, int);
 void printDeck(vector<card> &);
 void playBlackJack(void);
 vector<card> buildDeck(void);
-string determineSuit(int);
+string convertIntToSuit(int);
 card dealNextCard (vector<card> &);
 void shuffleDeck(vector<card> &);
+void hit(vector<card> &, int &, int);
+void dealCards(vector<card> &, int &, int);
 
 int main() {
-    char keepPlaying = 'n'; //loop control variable
+    string keepPlaying = "No"; //loop control variable
 
     do {
         playBlackJack();
 
         //ask if want to keep playing?
-        cout << "Do you want to play another hand (y/n)?";
+        cout << "Do you want to play another hand (Yes/No)?";
         cin >> keepPlaying;
-    } while(keepPlaying == 'Y' || keepPlaying == 'y');
+    } while(keepPlaying == "Yes" || keepPlaying == "yes");
 }
 
 void playBlackJack(void) {
     vector<card> theDeck = buildDeck();
+    int playerScore = 0;
+    int dealerScore = 0;
 
-    while (theDeck.size() > 0) {
-        card next = dealNextCard(theDeck);
-        cout << "Next card up is: ";
-        next.printCard();
-        cout << "Size of the deck is now " << theDeck.size();
+    // Deal player cards
+    dealCards(theDeck, playerScore, 0);
+
+    // Deal dealer cards
+    dealCards(theDeck, dealerScore, 1);
+
+    string hitOrStand = "";
+    // Player hit or stand?
+    do {
+        // While hit && playerScore <= 21, continue
+        // If playerScore > 21, bust, game over
+        cout << "Your score is " << playerScore << endl;
+        cout << "Hit or Stand?";
+        cin >> hitOrStand;
         cout << endl;
-        cout << endl;
+
+        if (hitOrStand == "Hit") {
+            hit(theDeck, playerScore, 0);
+            cout << "You chose to hit. You now have " << playerScore << endl;
+        }
+    } while ((hitOrStand == "Hit" || hitOrStand == "hit") && playerScore <= 21);
+
+    if (playerScore > 21) {
+        determineWinner(playerScore, dealerScore);
+        // Player busted. We're done.
+        return;
+    }
+
+    // Time for the dealer
+    // While dealerScore < 17, hit
+    // If dealerScore > 21, bust, game over
+    cout << "Dealer score is " << dealerScore << endl;
+    while (dealerScore < 17) {
+        hit(theDeck, dealerScore, 1);
+    }
+
+    // Determine winner
+    determineWinner(playerScore, dealerScore);
+
+//    while (theDeck.size() > 0) {
+//        card next = dealNextCard(theDeck);
+//        cout << "Next card up is: ";
+//        next.printCard();
+//        cout << "Size of the deck is now " << theDeck.size();
+//        cout << endl;
+//        cout << endl;
+//    }
+}
+
+void dealCards(vector<card> &deck, int &score, int playerOrDealer) {
+    card one = dealNextCard(deck);
+    card two = dealNextCard(deck);
+
+    score = score + one.rank;
+    score = score + two.rank;
+
+    if (playerOrDealer == 0) {
+        cout << "You were dealt the " << one.rank << " of " << one.suit << endl;
+        cout << "You were dealt the " << two.rank << " of " << two.suit << endl;
+        cout << "Your total is: " << score << endl << endl;
+    } else {
+        cout << "Dealer shows the " << two.rank << " of " << two.suit << endl;
+        cout << "Dealer total is " << two.rank << endl << endl;
+    }
+}
+
+void hit(vector<card> &deck, int &score, int playerOrDealer) {
+    card newCard = dealNextCard(deck);
+
+    score = score + newCard.rank;
+
+    if (playerOrDealer == 0) {
+        cout << "You were dealt the " << newCard.rank << " of " << newCard.suit << endl;
+        cout << "Your total is: " << score << endl << endl;
+    } else {
+        cout << "Dealer was dealt the " << newCard.rank << " of " << newCard.suit << endl;
+        cout << "Dealer total is " << score << endl << endl;
     }
 }
 
@@ -67,32 +139,42 @@ vector<card> buildDeck() {
     for (int x=0; x<4; ++x) {
         for (int y=1; y<14; ++y) {
             card newCard;
-            newCard.suit = determineSuit(x);
-            newCard.rank = y;
+            newCard.suit = convertIntToSuit(x);
+            if (y > 10) {
+                newCard.rank = 10;
+            } else {
+                newCard.rank = y;
+            }
             deck.push_back(newCard);
         }
     }
 
     // Print out the deck for debugging
-    printDeck(deck);
+//    printDeck(deck);
     // Shuffle the deck
     shuffleDeck(deck);
     // Print Deck again
-    cout << endl;
-    printDeck(deck);
+//    cout << endl;
+//    printDeck(deck);
 
     return deck;
 }
 
-string determineSuit(int suitNum) {
-    if (suitNum == 0) {
-        return "Hearts";
-    } else if (suitNum == 1) {
-        return "Diamonds";
-    } else if (suitNum ==2) {
-        return "Spades";
-    } else {
-        return "Clubs";
+/*
+* Converts a number between 0 and 3 to a corresponding
+* playing card suit
+*/
+string convertIntToSuit(int suitNum) {
+    switch( suitNum ) {
+        case 0:
+            return "Hearts";
+        case 1:
+            return "Clubs";
+        case 2:
+            return "Diamonds";
+        case 3:
+        default:
+            return "Spades";
     }
 }
 
@@ -114,68 +196,28 @@ void shuffleDeck(vector<card> & deck) {
     }
 }
 
-void play21(void) {
-    //play one hand of 21
-    //randomize the cards
-    srand((int) time(0));
-
-    // deals the cards
-    int person = dealCards(2, "Your Cards:");
-    cout << " = " << person << endl;
-    int house = dealCards(2, "Computers Cards:");
-    cout << " = " << house << endl;
-
-    // Ask if they want a hit and keep hitting...
-    hit(person);
-    cout << endl;
-
-    //Determine if the computer takes a hit
-    while ((house < person) && (house <= 21) && (person <= 21)) {
-        house += dealCards(1, "The Computer takes a card ");
-        cout << endl;
-    }
-    //show who won....
-    determineWinner(person, house);
-}
-
-//This function deals the cards
-//The number of cards to be dealt is provided as an argument
-//A message indicating which player is receiving the cards is also
-//given as an argument
-//The player message and the cards dealt is displayed to the screen
-// total value of the dealt cards is returned
-int dealCards(int numberOfCards, string message) {
-    int ret_val = 0, val;
-    int cards = numberOfCards;
-
-    cout << message;
-    while(cards--) {
-        // Values from 1 to K
-        val = getRandomNumber(0,14);
-        if( val > 10 ) val = 10;
-        if( val == 1 ) val = 11;
-        cout << val;
-        if(cards)
-            cout << ",";
-        ret_val+=val;
-    }
-    return ret_val;
-}
-
-void determineWinner(int humanScore, int houseScore) {
+void determineWinner(int playerScore, int dealerScore) {
 //Compare the scores to see who won
-//Both the human and the house score totals are provided as arguments
+//Both the human and the dealer score totals are provided as arguments
 //Display total scores and indicate winner
 //possible outcomes: human wins, computer wins, tie
-}
-
-void hit(int &playerScore) {
-//This function asks if they want another card -- 'a hit'
-//the player's score total is accumulated as they take cards
-//the player can continue taking cards until they wish to stop or they exceed 21
-//After a card is taken (use the dealCards function) the user's current total is displayed
-//If the user goes over 21 'busted' is displayed
-
+    if (playerScore > 21) {
+        cout << "Your score is " << playerScore << " - you busted! Thanks for playing!";
+    } else if (dealerScore > 21) {
+        cout << "Dealer score is " << dealerScore << " - the dealer busted! You win!";
+    } else if (playerScore > dealerScore) {
+        cout << "Player score is " << playerScore << endl;
+        cout << "Dealer score is " << dealerScore << endl;
+        cout << "You win!" << endl;
+    } else if (dealerScore > playerScore) {
+        cout << "Player score is " << playerScore << endl;
+        cout << "Dealer score is " << dealerScore << endl;
+        cout << "You lose. Thanks for playing!" << endl;
+    } else {
+        cout << "Player score is " << playerScore << endl;
+        cout << "Dealer score is " << dealerScore << endl;
+        cout << "It's a draw! Thanks for playing!" << endl;
+    }
 }
 
 int getRandomNumber(int lowerLimit, int upperLimit) {

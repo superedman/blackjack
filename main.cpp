@@ -4,6 +4,7 @@
 //The player who is the closest to 21 without
 //going over wins the hand.
 
+#include <algorithm>
 #include <iostream>
 #include <ctime>
 #include <string>
@@ -18,12 +19,13 @@ void play21(void);
 int dealCards(int, string);
 void hit(int &);
 void determineWinner(int, int);
-int Random(int, int);
-void printCard(card);
+int getRandomNumber(int, int);
+void printDeck(vector<card> &);
 void playBlackJack(void);
 vector<card> buildDeck(void);
 string determineSuit(int);
-card dealNextCard (vector<card>);
+card dealNextCard (vector<card> &);
+void shuffleDeck(vector<card> &);
 
 int main() {
     char keepPlaying = 'n'; //loop control variable
@@ -38,23 +40,30 @@ int main() {
 }
 
 void playBlackJack(void) {
-    buildDeck();
+    vector<card> theDeck = buildDeck();
 
+    while (theDeck.size() > 0) {
+        card next = dealNextCard(theDeck);
+        cout << "Next card up is: ";
+        next.printCard();
+        cout << "Size of the deck is now " << theDeck.size();
+        cout << endl;
+        cout << endl;
+    }
 }
 
 card dealNextCard (vector<card> & deck) {
-
+    card next;
+    next.suit = deck.back().suit;
+    next.rank = deck.back().rank;
+    deck.pop_back();
+    return next;
 }
 
 vector<card> buildDeck() {
     // Create Vector
     vector<card> deck;
     // Add 52 cards
-    card aceOfSpades;
-    aceOfSpades.rank = 11;
-    aceOfSpades.suit = "Spade";
-    deck.push_back(aceOfSpades);
-
     for (int x=0; x<4; ++x) {
         for (int y=1; y<14; ++y) {
             card newCard;
@@ -64,10 +73,15 @@ vector<card> buildDeck() {
         }
     }
 
-    printCard(aceOfSpades);
-
+    // Print out the deck for debugging
+    printDeck(deck);
     // Shuffle the deck
+    shuffleDeck(deck);
+    // Print Deck again
+    cout << endl;
+    printDeck(deck);
 
+    return deck;
 }
 
 string determineSuit(int suitNum) {
@@ -82,13 +96,26 @@ string determineSuit(int suitNum) {
     }
 }
 
-void printCard(card c) {
-    cout << c.suit << " " << c.rank << endl;
+void printDeck(vector<card> & deck) {
+    for(std::vector<card>::iterator it = deck.begin(); it != deck.end(); ++it) {
+        (*it).printCard();
+    }
+}
+
+void shuffleDeck(vector<card> & deck) {
+    // Init random
+    srand(time(NULL));
+    // Number of times to switch 2 random cards in the deck
+    int numTimes = 3000;
+    for (int x=0; x<numTimes; ++x) {
+        int firstSpot = getRandomNumber(0, 51);
+        int secondSpot = getRandomNumber(0, 51);
+        swap(deck[firstSpot], deck[secondSpot]);
+    }
 }
 
 void play21(void) {
     //play one hand of 21
-
     //randomize the cards
     srand((int) time(0));
 
@@ -124,7 +151,7 @@ int dealCards(int numberOfCards, string message) {
     cout << message;
     while(cards--) {
         // Values from 1 to K
-        val = Random(0,14);
+        val = getRandomNumber(0,14);
         if( val > 10 ) val = 10;
         if( val == 1 ) val = 11;
         cout << val;
@@ -151,7 +178,7 @@ void hit(int &playerScore) {
 
 }
 
-int Random(int lowerLimit, int upperLimit) {
-//returns a random number within the given boundary
-    return 1 + rand() % (upperLimit - lowerLimit + 1);
+int getRandomNumber(int lowerLimit, int upperLimit) {
+    //returns a random number within the given boundary
+    return rand() % (upperLimit - lowerLimit + 1);
 }

@@ -202,7 +202,7 @@ void determineWinner(int playerScore, int dealerScore) {
 //Display total scores and indicate winner
 //possible outcomes: human wins, computer wins, tie
     if (playerScore > 21) {
-        cout << "Your score is " << playerScore << " - you busted! Thanks for playing!";
+        cout << "Your score is " << playerScore << " - you busted! Thanks for playing!" << endl;
     } else if (dealerScore > 21) {
         cout << "Dealer score is " << dealerScore << " - the dealer busted! You win!";
     } else if (playerScore > dealerScore) {

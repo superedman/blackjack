@@ -19,8 +19,7 @@ void determineWinner(int, int);
 int Random(int, int);
 
 
-int main(){
-    int
+int main() {
     char keepPlaying = 'n'; //loop control variable
 
     do {
@@ -33,7 +32,7 @@ int main(){
 }
 
 
-void play21(void){
+void play21(void) {
     //play one hand of 21
 
     //randomize the cards
@@ -57,7 +56,6 @@ void play21(void){
     //show who won....
     determineWinner(person, house);
 }
-int dealCards(int numberOfCards, string message){
 
 //This function deals the cards
 //The number of cards to be dealt is provided as an argument
@@ -65,13 +63,13 @@ int dealCards(int numberOfCards, string message){
 //given as an argument
 //The player message and the cards dealt is displayed to the screen
 // total value of the dealt cards is returned
-
+int dealCards(int numberOfCards, string message) {
     int ret_val = 0, val;
     int cards = numberOfCards;
 
     cout << message;
-    while(cards--){
-// Values from 1 to K
+    while(cards--) {
+        // Values from 1 to K
         val = Random(0,14);
         if( val > 10 ) val = 10;
         if( val == 1 ) val = 11;
@@ -90,7 +88,7 @@ void determineWinner(int humanScore, int houseScore) {
 //possible outcomes: human wins, computer wins, tie
 }
 
-void hit(int &playerScore){
+void hit(int &playerScore) {
 //This function asks if they want another card -- 'a hit'
 //the player's score total is accumulated as they take cards
 //the player can continue taking cards until they wish to stop or they exceed 21

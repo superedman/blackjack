@@ -3,5 +3,5 @@ project(blackjack)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES main.cpp card.h)
+set(SOURCE_FILES main.cpp card.h blackjack.cpp blackjack.h)
 add_executable(blackjack ${SOURCE_FILES})
